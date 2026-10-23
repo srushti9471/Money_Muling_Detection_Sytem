@@ -1,0 +1,64 @@
+# Datasets (IBM AML transaction data - huge, ~40GB, never commit)
+dataset/
+datasets/
+data/
+HI-Large_*
+HI-Medium_*
+HI-Small_*
+LI-Large_*
+LI-Medium_*
+LI-Small_*
+
+# Generated/processed data
+formatted_transactions*.csv
+pyg_cache*.pt
+*.pt.tmp
+
+# Model checkpoints & inference outputs
+checkpoints/
+*.tar
+*.pth
+*.ckpt
+detected_aml_alerts*.csv
+
+# Sample data (regenerate from dataset if needed)
+sample_dataset/
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Environments
+.venv/
+venv/
+env/
+conda-env/
+
+# Testing / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Node (web dir, if tooling is added later)
+web/node_modules/

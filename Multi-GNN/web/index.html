@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MONEY MULING DETECTION SYSTEM | Multi-GNN Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/index.css">
+  <script src="/static/vis-network.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <div class="radar-dot"></div>
+          <span class="logo-icon">🛡️</span>
+        </div>
+        <div>
+          <h1 class="system-title">MONEY MULING DETECTION SYSTEM</h1>
+          <p class="system-subtitle">IBM Multi-GNN Directed Temporal Multigraph Engine &bull; RTX 3050 Accelerated</p>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="account-search-input" placeholder="Search Account ID (e.g. 27812, 159695)..." autocomplete="off">
+          <button id="search-btn" class="btn-subtle">Search</button>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="dataset-pill" id="dataset-pill" title="Pre-computed IBM HI-Small evaluation">
+          <span class="pill-dot"></span>
+          <span class="dataset-name" id="dataset-name-text">IBM HI-Small (Pre-Computed)</span>
+        </div>
+        <div class="density-pill" id="graph-density-pill" title="Live multigraph density">
+          <span class="density-dot"></span>
+          <span id="dense-nodes-count">382</span> Nodes &bull; <span id="dense-edges-count">688</span> Transactions
+        </div>
+        <button id="refresh-btn" class="btn-subtle" title="Reload fresh network">⟳ Reset View</button>
+      </div>
+    </header>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- KPI Ribbon -->
+    <section class="kpi-ribbon">
+      <div class="kpi-card" id="kpi-total">
+        <div class="kpi-label">Test Transactions Evaluated</div>
+        <div class="kpi-value" id="val-total-trans">648,748</div>
+        <div class="kpi-sub">Directed Multigraph Split</div>
+      </div>
+
+      <div class="kpi-card alert-card" id="kpi-flagged">
+        <div class="kpi-label">Flagged Illicit Transactions</div>
+        <div class="kpi-value highlight-red" id="val-flagged-trans">297</div>
+        <div class="kpi-sub">Threshold &ge; 35% Confidence</div>
+      </div>
+
+      <div class="kpi-card" id="kpi-volume">
+        <div class="kpi-label">Total Flagged Volume Caught</div>
+        <div class="kpi-value highlight-gold" id="val-flagged-vol">$505.2M</div>
+        <div class="kpi-sub">Suspected Mule Transfers</div>
+      </div>
+
+      <div class="kpi-card" id="kpi-mules">
+        <div class="kpi-label">Identified Money Mules</div>
+        <div class="kpi-value highlight-red" id="val-mules-count">48 Hubs</div>
+        <div class="kpi-sub">Gather-Scatter Intermediaries</div>
+      </div>
+
+      <div class="kpi-card" id="kpi-precision">
+        <div class="kpi-label">Top Alert Precision</div>
+        <div class="kpi-value highlight-green" id="val-precision">96.0%</div>
+        <div class="kpi-sub">24 of Top 25 Confirmed</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace (Graph Canvas + Details Panel) -->
+    <main class="workspace-grid">
+      <!-- Left: Interactive Graph -->
+      <section class="graph-section">
+        <div class="section-toolbar">
+          <div class="toolbar-group">
+            <span class="toolbar-title">Transaction Multigraph Network</span>
+            <div class="view-preset-pills">
+              <button class="preset-pill active" data-pattern="dense_core" id="btn-dense-core">🌐 Dense Banking Core (382 Nodes)</button>
+              <button class="preset-pill" data-pattern="mule_rings" id="btn-mule-rings">🚨 Top Mule Rings (202 Nodes)</button>
+              <button class="preset-pill" data-pattern="fan_out" id="btn-fan-out">🌪️ Smurfing Networks (354 Nodes)</button>
+              <button class="preset-pill" data-pattern="all_clusters" id="btn-all-clusters">🕸️ Multi-Ring Clusters (492 Nodes)</button>
+            </div>
+          </div>
+
+          <div class="toolbar-group right-controls">
+            <div class="slider-control">
+              <label for="threshold-slider">Risk Threshold: <span id="threshold-val" class="mono-badge">35%</span></label>
+              <input type="range" id="threshold-slider" min="25" max="50" value="35" step="1">
+            </div>
+            <button id="fit-graph-btn" class="btn-subtle" title="Zoom to fit">Fit Screen</button>
+          </div>
+        </div>
+
+        <div class="graph-canvas-container" id="graph-wrapper">
+          <div id="network-canvas"></div>
+          
+          <!-- Legend Overlay -->
+          <div class="graph-legend">
+            <div class="legend-header">Graph Legend</div>
+            <div class="legend-item">
+              <span class="legend-dot red-pulsing"></span>
+              <span>Suspicious Node (Money Mule / Hub)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot slate-dot"></span>
+              <span>Counterparty Account (Normal)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-line red-line"></span>
+              <span>High-Risk Transaction Flow (&ge; 35%)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-line slate-line"></span>
+              <span>Licit Transaction Flow</span>
+            </div>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div class="graph-loader" id="graph-loader">
+            <div class="spinner"></div>
+            <span>Synthesizing Multigraph Topology...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Node & Transaction Intelligence Sidebar -->
+      <aside class="details-panel" id="sidebar-panel">
+        <div class="panel-header">
+          <h2 class="panel-title" id="panel-heading">Entity Intelligence</h2>
+          <span class="panel-badge" id="panel-badge">Overview</span>
+        </div>
+
+        <!-- Dynamic Container filled by app.js -->
+        <div class="panel-body" id="panel-content">
+          <!-- Default State: Top Money Mule Leaderboard -->
+          <div class="default-view">
+            <div class="helper-box">
+              <span class="helper-icon">💡</span>
+              <p>Click any <strong>node</strong> or <strong>transaction edge</strong> in the graph to inspect detailed AML risk metrics and transaction history.</p>
+            </div>
+
+            <div class="mule-leaderboard">
+              <h3 class="subheading">Top Flagged Money Mule Hubs</h3>
+              <p class="subheading-desc">Identified by high-centrality multi-hop flows:</p>
+              <div id="mules-list" class="mules-list-container">
+                <!-- Injected via JavaScript -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Bottom: Real-Time Alerts Feed Table -->
+    <section class="alerts-feed-section">
+      <div class="feed-header">
+        <div>
+          <h3 class="feed-title">Suspicious Transaction Alerts</h3>
+          <p class="feed-sub">Ranked by Multi-GNN illicit prediction confidence. Click any row to inspect in the graph.</p>
+        </div>
+        <div class="feed-actions">
+          <span id="alerts-count-badge" class="badge-count">Loading alerts...</span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="alerts-table" id="alerts-table">
+          <thead>
+            <tr>
+              <th>Edge ID</th>
+              <th>From Account</th>
+              <th></th>
+              <th>To Account</th>
+              <th>Amount ($)</th>
+              <th>Channel</th>
+              <th>Currency</th>
+              <th>AML Risk Score</th>
+              <th>Prediction</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="alerts-tbody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>MONEY MULING DETECTION SYSTEM &bull; IBM Multi-GNN Model Architecture</span>
+      <span>Trained Checkpoint: <code>checkpoint_gin_hi_small.tar</code></span>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

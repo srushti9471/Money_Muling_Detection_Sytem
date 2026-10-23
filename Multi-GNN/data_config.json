@@ -1,0 +1,7 @@
+{
+  "paths": {
+    "aml_data": "/home/rishabh/c0de/anti-money-laundering/dataset", 
+    "model_to_load": "./checkpoints",
+    "model_to_save": "./checkpoints"
+  }
+}
